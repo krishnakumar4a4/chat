@@ -31,6 +31,7 @@ erl
   -
 
 Connect nodes to communicate
+  Links: https://www.ejabberd.im/interconnect-erl-nodes
   start the each of the erl nodes with a name(one with krishna and other with kumar)
   >erl -sname krishna  and erl -sname kumar
   We can find the node name of each with following command
