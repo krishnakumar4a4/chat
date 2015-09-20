@@ -1,0 +1,31 @@
+->Good information for building a server, explained gen_supervisor,funs,gen_tcp well. But not much clear about gen_fsm<-
+https://erlangcentral.org/wiki/index.php?title=Building_a_Non-blocking_TCP_server_using_OTP_principles
+->Mnesia,gen_tcp explained well part of bank_server example<-
+http://erlangcentral.org/frame/?href=http%3A%2F%2Fwww.sics.se%2F~joe%2Ftutorials%2Frobust_server%2Frobust_server.html#.Vf422d9CrDf
+
+GEN_TCP:
+
+gen_tcp:listen(Port, Options) -> {ok, ListenSocket} | {error, Reason}
+  Sets up a socket to listen on the port Port on the local host.
+accept(ListenSocket) -> {ok, Socket} | {error, Reason}
+accept(ListenSocket, Timeout) -> {ok, Socket} | {error, Reason}
+  Accepts an incoming connection request on a listen socket. Socket must be a socket returned from listen/2. Timeout specifies a timeout value in ms, defaults to infinity.
+send(Socket, Packet) -> ok | {error, Reason}
+  Sends a packet on a socket.
+recv(Socket, Length) -> {ok, Packet} | {error, Reason}
+recv(Socket, Length, Timeout) -> {ok, Packet} | {error, Reason}
+  This function receives a packet from a socket in passive mode. A closed socket is indicated by a return value {error, closed}.
+controlling_process(Socket, Pid) -> ok | {error, Reason}
+  Assigns a new controlling process Pid to Socket. The controlling process is the process which receives messages from the socket. If called by any other process than the current controlling process, {error, not_owner} is returned.
+close(Socket) -> ok
+  Closes a TCP socket.
+shutdown(Socket, How) -> ok | {error, Reason}
+  Close a socket in one or two directions.
+
+ERL:
+erl
+  The erl program starts an Erlang runtime system.
+  -boot File  Specifies the name of the boot file, File.boot, which is used to start the system. See init(3). Unless File contains an absolute path, the system searches for File.boot in the current and $ROOT/bin directories.
+  -config Config Specifies the name of a configuration file, Config.config, which is used to configure applications
+  -detached Starts the Erlang runtime system detached from the system console. Useful for running daemons and backgrounds processes. Implies -noinput.
+  -
