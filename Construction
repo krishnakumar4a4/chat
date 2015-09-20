@@ -29,3 +29,18 @@ erl
   -config Config Specifies the name of a configuration file, Config.config, which is used to configure applications
   -detached Starts the Erlang runtime system detached from the system console. Useful for running daemons and backgrounds processes. Implies -noinput.
   -
+
+Connect nodes to communicate
+  start the each of the erl nodes with a name(one with krishna and other with kumar)
+  >erl -sname krishna  and erl -sname kumar
+  We can find the node name of each with following command
+  >node().
+  Try connecting the other with the following command, we should get the respinse as pong,if connected
+  >net_adm:ping('kumar@hostname').
+  check on both sides with 
+  >nodes().
+  Now if we start a server globally on one node, it will be available on the other node. Check it using
+  >global:registered_names().
+  If we want to register your own PID globally. Should return yes.
+  >global:register_name(name_atom,self()).
+  
