@@ -2,7 +2,7 @@
 -behavior(gen_server).
 
 -export([init/1,handle_call/3]).
--export([start_server/0,new_client/1]).
+-export([start_server/0]).
 -record(state,{server_state,server_pid,clients,clientpid}).
 
 start_server()->
@@ -14,28 +14,16 @@ init(INIT)->
                     clients = [],clientpid = []},
     {ok, State}.
     
-new_client(ClientName) ->
-    case gen_server:call({global,chat_server}, {start_client,ClientName}, infinity) of
-	{client_started,_,_} ->
-	    gen_server:call(ClientName,{go_live,ClientName},infinity);
-	_ ->
-	    io:format("client ~p : not successfully started",[ClientName])
-    end.
     
-handle_call({start_client,ClientName}, From, State) ->
-    Reply = case chat_client:start_client(ClientName,self()) of
-		{ok, ClientPid} ->
-		    {client_started,ClientName,ClientPid};
+handle_call({link_client,ClientDetails}, From, State) ->
+    NewState = case ClientDetails of
+		{client_started,ClientName,ClientPid} ->
+			Clients = [{ClientName,element(3,ClientDetails)}|State#state.clients],
+			#state{clients = Clients};
 		_ ->
-		    not_started
+		    State
 	    end,
-    Clients = [{ClientName,element(3,Reply)}|State#state.clients],
-    NewState = #state{clients = Clients},
-    %% Clients = [ClientName|State#state.clients],
-    %% ClientPids = [element(3,Reply)|State#state.clientpid],
-    %% NewState = #state{clients = Clients,clientpid = ClientPids},
-    %%io:format("~p~p",[Reply,NewState]),
-    {reply,Reply,NewState};
+    {reply,client_linked,NewState};
 
 handle_call({in_msg,INMSG}, {FromPid,_Ref}, State) ->
     io:format("In msg : ~p~nPresent state~p~n",[INMSG,State]),
@@ -45,6 +33,6 @@ handle_call({in_msg,INMSG}, {FromPid,_Ref}, State) ->
 	    lists:foreach(fun(ClientName) -> gen_server:cast(element(1,ClientName),{broadcast,anonymous,INMSG}) end,State#state.clients);
 	{FoundName,_} ->
 	    io:format("~p has sent you ~p~n",[FoundName,INMSG]),
-	    lists:foreach(fun(ClientName) -> gen_server:cast(element(1,ClientName),{broadcast,FoundName,INMSG}) end,State#state.clients)
+	    lists:foreach(fun({_,ClientName}) -> gen_server:cast(ClientName,{broadcast,FoundName,INMSG}),io:format("message ~p broadcasted to ~p",[INMSG,ClientName]) end,State#state.clients)
     end,
     {reply,"delivered",State}.
