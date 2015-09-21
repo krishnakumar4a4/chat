@@ -41,8 +41,10 @@ handle_call({in_msg,INMSG}, {FromPid,_Ref}, State) ->
     io:format("In msg : ~p~nPresent state~p~n",[INMSG,State]),
     case lists:keyfind(FromPid,2,State#state.clients) of
 	false-> 
-	    io:format("~nAn Anonymous has sent you ~p~n",[INMSG]);
+	    io:format("~nAn Anonymous has sent you ~p~n",[INMSG]),
+	    lists:foreach(fun(ClientName) -> gen_server:cast(element(1,ClientName),{broadcast,anonymous,INMSG}) end,State#state.clients);
 	{FoundName,_} ->
-	    io:format("~p has sent you ~p~n",[FoundName,INMSG])
+	    io:format("~p has sent you ~p~n",[FoundName,INMSG]),
+	    lists:foreach(fun(ClientName) -> gen_server:cast(element(1,ClientName),{broadcast,FoundName,INMSG}) end,State#state.clients)
     end,
     {reply,"delivered",State}.
