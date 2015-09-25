@@ -6,7 +6,7 @@ http://erlangcentral.org/frame/?href=http%3A%2F%2Fwww.sics.se%2F~joe%2Ftutorials
 GEN_TCP:
 
 gen_tcp:listen(Port, Options) -> {ok, ListenSocket} | {error, Reason}
-  Sets up a socket to listen on the port Port on the local host.
+  Sets up a socket to listen on the port Port on the local host.Usually given on server side.
 accept(ListenSocket) -> {ok, Socket} | {error, Reason}
 accept(ListenSocket, Timeout) -> {ok, Socket} | {error, Reason}
   Accepts an incoming connection request on a listen socket. Socket must be a socket returned from listen/2. Timeout specifies a timeout value in ms, defaults to infinity.
@@ -15,6 +15,7 @@ send(Socket, Packet) -> ok | {error, Reason}
 recv(Socket, Length) -> {ok, Packet} | {error, Reason}
 recv(Socket, Length, Timeout) -> {ok, Packet} | {error, Reason}
   This function receives a packet from a socket in passive mode. A closed socket is indicated by a return value {error, closed}.
+  waits until the response comes from the other side.
 controlling_process(Socket, Pid) -> ok | {error, Reason}
   Assigns a new controlling process Pid to Socket. The controlling process is the process which receives messages from the socket. If called by any other process than the current controlling process, {error, not_owner} is returned.
 close(Socket) -> ok
@@ -45,3 +46,6 @@ Connect nodes to communicate
   If we want to register your own PID globally. Should return yes.
   >global:register_name(name_atom,self()).
   
+Some errors 
+  {error,enotsock} -> error got resolved when gen_tcp:recv is placed after client link receive.
+  {error,einval} -> give the parameters exactly the same on both side i.e for conenct and listen, always start listen and accept before send connect
