@@ -39,6 +39,7 @@ start_client(ClientName)->
 listen_broadcast(Socket,ClientName) ->
 	case gen_tcp:recv(Socket,0) of
 		{ok,INMSG} ->
+			io:format("~p broadcasted ~n~p",[ClientName,INMSG]),
 			gen_server:cast(ClientName,{broadcast,ClientName,INMSG});
 		Reason ->
 			io:format("Incoming broadcast failed,reason ~p ~p ~p~n",[Reason,Socket,ClientName])
