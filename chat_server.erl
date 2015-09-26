@@ -1,7 +1,7 @@
 -module(chat_server).
 -behavior(gen_server).
 
--export([init/1,handle_call/3]).
+-export([init/1,handle_call/3,terminate/2]).
 -export([start_server/0]).
 -record(state,{server_state,server_port,listen_socket,server_pid,clients,clientpid}).
 
@@ -93,9 +93,11 @@ handle_call({in_msg,INMSG,client_name,ClientName,socket,Socket}, {_FromPid,_Ref}
     case lists:filtermap(fun(A) -> case A of {ClientName,Socket} -> true;_ -> false end end,State#state.clients) of
 		[] -> 
 			io:format("~nAn Anonymous has sent you ~p~n",[INMSG]);
-			%%lists:foreach(fun(ClientName) -> gen_server:cast(element(1,ClientName),{broadcast,anonymous,INMSG}) end,State#state.clients);
-		{FoundName,_} ->
+		[{FoundName,_}] ->
 			io:format("~p has sent you ~p~n",[FoundName,INMSG])
-			%%lists:foreach(fun({_,ClientName}) -> gen_server:cast(ClientName,{broadcast,FoundName,INMSG}),io:format("message ~p broadcasted to ~p",[INMSG,ClientName]) end,State#state.clients)
     end,
     {reply,State#state.clients,State}.
+	
+terminate(Reason,State) ->
+	io:format("Server terminated with reason ~p~n and state ~p~n",[Reason,State]),
+	ok.
