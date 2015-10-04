@@ -54,8 +54,8 @@ differentiate([1|ClientDetails],Socket) ->
 differentiate([2|[LEN|INMSG]],Socket) ->
 	{ClientName,MSG} = lists:split(LEN,INMSG),
 	ClientList = gen_server:call({global,chat_server},{in_msg,INMSG,client_name,list_to_atom(ClientName),socket,Socket},infinity),
-	io:format("Clients list before going broadcast ~p ~n",[ClientList]),
-	broadcast_all(ClientList,MSG,{list_to_atom(ClientName),Socket}).
+	io:format("Clients list before going broadcast ~p ~nBroadcast msg is ~p~n",[ClientList,MSG]),
+	broadcast_all(ClientList,INMSG,{list_to_atom(ClientName),Socket}).
 
 broadcast_all([],_MSG,{_ClientName,_Socket}) ->
 	ok;
