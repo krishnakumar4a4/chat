@@ -4927,6 +4927,12 @@ about Erlang modules."
 Change this variable to use your favorite
 Erlang compilation package.")
 
+(defvar erlang-shell-function-lat 'inferior-erlang-lat
+  "Command to execute start a new Erlang shell.
+
+Change this variable to use your favorite
+Erlang compilation package.")
+
 (defvar erlang-shell-display-function 'inferior-erlang-run-or-select
   "Command to execute to display Erlang shell.
 
@@ -4964,6 +4970,16 @@ default is to start a new Erlang host.  It is possible that, in the
 future, a new shell on an already running host will be started."
   (interactive)
   (call-interactively erlang-shell-function))
+
+;;;###autoload
+(defun erlang-shell-lat ()
+  "Start a new Erlang shell.
+
+The variable `erlang-shell-function' decides which method to use,
+default is to start a new Erlang host.  It is possible that, in the
+future, a new shell on an already running host will be started."
+  (interactive)
+  (call-interactively erlang-shell-function-lat))
 
 
 ;;;###autoload (autoload 'run-erlang "erlang" "Start a new Erlang shell." t)
@@ -5009,6 +5025,9 @@ future, a new shell on an already running host will be started."
 
 
 (defvar erlang-shell-buffer-name "*erlang*"
+  "The name of the Erlang link shell buffer.")
+
+(defvar erlang-shell-buffer-name-lat "*slave*"
   "The name of the Erlang link shell buffer.")
 
 (defvar erlang-shell-mode-map nil
@@ -5160,10 +5179,21 @@ This variable influence the setting of other variables.")
 
 This must be a list of strings.")
 
+(defvar inferior-erlang-machine-options-lat '("-sname" "slave" "-pa" "/home/krishnakumarcentos/Downloads/chat" "-s" "lslave" "start_slave" "slave" "-noshell")
+  "*The options used when activating the Erlang shell.
+
+This must be a list of strings.")
+
 (defvar inferior-erlang-process-name "inferior-erlang"
   "The name of the inferior Erlang process.")
 
+(defvar inferior-erlang-process-name-lat "inferior-erlang-slave"
+  "The name of the inferior Erlang process.")
+
 (defvar inferior-erlang-buffer-name erlang-shell-buffer-name
+  "The name of the inferior Erlang buffer.")
+
+(defvar inferior-erlang-buffer-name-lat erlang-shell-buffer-name-lat
   "The name of the inferior Erlang buffer.")
 
 (defvar inferior-erlang-prompt-timeout 60
@@ -5177,6 +5207,12 @@ a prompt.  When nil, we will wait forever, or until \\[keyboard-quit].")
   "Process of last invoked inferior Erlang, or nil.")
 
 (defvar inferior-erlang-buffer nil
+  "Buffer of last invoked inferior Erlang, or nil.")
+
+(defvar inferior-erlang-process-lat nil
+  "Process of last invoked inferior Erlang, or nil.")
+
+(defvar inferior-erlang-buffer-lat nil
   "Buffer of last invoked inferior Erlang, or nil.")
 
 ;; Enable uniquifying Erlang shell buffers based on directory name.
@@ -5240,6 +5276,68 @@ editing control characters:
   (if erlang-inferior-shell-split-window
       (switch-to-buffer-other-window inferior-erlang-buffer)
     (switch-to-buffer inferior-erlang-buffer)) 
+  (if (and (not (eq system-type 'windows-nt))
+	   (eq inferior-erlang-shell-type 'newshell))
+      (setq comint-process-echoes t))
+  (erlang-shell-mode))
+
+;;;###autoload
+(defun inferior-erlang-lat (&optional command)
+  "Run an inferior Erlang.
+With prefix command, prompt for command to start Erlang with.
+
+This is just like running Erlang in a normal shell, except that
+an Emacs buffer is used for input and output.
+\\<comint-mode-map>
+The command line history can be accessed with  \\[comint-previous-input]  and  \\[comint-next-input].
+The history is saved between sessions.
+
+Entry to this mode calls the functions in the variables
+`comint-mode-hook' and `erlang-shell-mode-hook' with no arguments.
+
+The following commands imitate the usual Unix interrupt and
+editing control characters:
+\\{erlang-shell-mode-map}"
+  (interactive
+   (when current-prefix-arg
+     (list (if (fboundp 'read-shell-command)
+               ;; `read-shell-command' is a new function in Emacs 23.
+	       (read-shell-command "Erlang command: ")
+	     (read-string "Erlang command: ")))))
+  (require 'comint)
+  (let (cmd opts)
+    (if command
+        (setq cmd "sh"
+              opts (list "-c" command))
+      (setq cmd inferior-erlang-machine
+            opts inferior-erlang-machine-options-lat)
+      (cond ((eq inferior-erlang-shell-type 'oldshell)
+             (setq opts (cons "-oldshell" opts)))
+            ((eq inferior-erlang-shell-type 'newshell)
+             (setq opts (append '("-newshell" "-env" "TERM" "vt100") opts)))))
+
+    ;; Using create-file-buffer and list-buffers-directory in this way
+    ;; makes uniquify give each buffer a unique name based on the
+    ;; directory.
+    (let ((fake-file-name (expand-file-name inferior-erlang-buffer-name-lat default-directory)))
+      (setq inferior-erlang-buffer-lat (create-file-buffer fake-file-name))
+      (apply 'make-comint-in-buffer
+             inferior-erlang-process-name-lat
+             inferior-erlang-buffer-lat
+             cmd
+             nil opts)
+      (with-current-buffer inferior-erlang-buffer-lat
+        (setq list-buffers-directory fake-file-name))))
+
+  (setq inferior-erlang-process-lat
+	(get-buffer-process inferior-erlang-buffer-lat))
+  (if (> 21 erlang-emacs-major-version)	; funcalls to avoid compiler warnings
+      (funcall (symbol-function 'set-process-query-on-exit-flag) 
+	       inferior-erlang-process-lat nil)
+    (funcall (symbol-function 'process-kill-without-query) inferior-erlang-process-lat))
+  (if erlang-inferior-shell-split-window
+      (switch-to-buffer-other-window inferior-erlang-buffer-lat)
+    (switch-to-buffer inferior-erlang-buffer-lat)) 
   (if (and (not (eq system-type 'windows-nt))
 	   (eq inferior-erlang-shell-type 'newshell))
       (setq comint-process-echoes t))
