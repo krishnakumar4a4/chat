@@ -45,3 +45,14 @@ Connect nodes to communicate
   If we want to register your own PID globally. Should return yes.
   >global:register_name(name_atom,self()).
   
+Some errors 
+  {error,enotsock} -> error got resolved when gen_tcp:recv is placed after client link receive.
+  {error,einval} -> give the parameters exactly the same on both side i.e for conenct and listen, always start listen and accept before send connect
+
+I faced a problem while getting the broadcast messages from the server, as the client getting blocked for incoming broadcast
+messages with prompt.
+So I figured out a way to spawn one more gen server process in a separate shell(slave), which only listens for incoming broadcasts.
+
+so I started a slave process with the following command line options 
+erl -sname slave -s lslave start_slave slave -noshell
+which globally registers slave process as slave for a listening gen_server process.
