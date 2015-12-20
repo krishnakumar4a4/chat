@@ -27,3 +27,17 @@ disc_only_copies   = []
 yes
 21> mnesia:dirty_read({mafia_app,"krishna"}).                               
 [#mafia_app{name = "krishna",op = "kill"}]
+27> mnesia:create_table(mafia,[{attributes,record_info(fields,mafia)}]).
+{atomic,ok}
+28> mnesia:dirty_write(mafia,#mafia{services=cooking,expertise=everything,spent="lifetime"}).
+ok
+29> mnesia:dirty_write(mafia,#mafia{services=tech,expertise=something,spent="partial"}).     
+ok
+30> mnesia:dirty_read({mafia,tech}).
+[#mafia{services = tech,expertise = something,
+        spent = "partial"}]
+31> mnesia:dirty_read({mafia,something}).
+[]
+32> mnesia:dirty_read({mafia,cooking}).  
+[#mafia{services = cooking,expertise = everything,
+        spent = "lifetime"}]
