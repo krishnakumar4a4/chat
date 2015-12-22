@@ -41,3 +41,4 @@ ok
 32> mnesia:dirty_read({mafia,cooking}).  
 [#mafia{services = cooking,expertise = everything,
         spent = "lifetime"}]
+133> mnesia:dirty_index_read(xmlElement,"ietf-netconf-monitoring.yin",expanded_name).
