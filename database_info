@@ -42,3 +42,5 @@ ok
 [#mafia{services = cooking,expertise = everything,
         spent = "lifetime"}]
 133> mnesia:dirty_index_read(xmlElement,"ietf-netconf-monitoring.yin",expanded_name).
+--creating differnet table name irrespective record
+mnesia:create_table(yang_db,[{index,[#xmlElement.expanded_name]},{attributes,record_info(fields,xmlElement)},{type,bag},{record_name, xmlElement}]).
