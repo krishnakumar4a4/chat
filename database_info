@@ -44,3 +44,10 @@ ok
 133> mnesia:dirty_index_read(xmlElement,"ietf-netconf-monitoring.yin",expanded_name).
 --creating differnet table name irrespective record
 mnesia:create_table(yang_db,[{index,[#xmlElement.expanded_name]},{attributes,record_info(fields,xmlElement)},{type,bag},{record_name, xmlElement}]).
+
+----Creating disc_only_copies with mnesia-----
+->erl -mnesia dir "'location/to/mnesia/dir'"          <-starts an erl node with mnesia directory pre-set
+->mnesia:create_schema(nodes()).                      <-Create a schema on all the connected erl nodes
+            (or)
+->mnesia:create_schema([node()]).                     <-Create a schema on current erl node 
+->mnesia:create_table(my_db,[{index,[#xmlElement.expanded_name]},{attributes,record_info(fields,xmlElement)},{type,bag},{record_name,xmlElement},{disc_only_copies,[node()]}}]).   <-create a table with my_db name which stores xmlElement records as disc_only_copies, mnesia dir and schema creation should be done beforehand.
