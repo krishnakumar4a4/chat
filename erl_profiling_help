@@ -1,0 +1,8 @@
+1. Erlang process memory measure 
+   erlang:process_info(<pid>, memory).
+2. Erlang profiling tools on git
+   https://github.com/virtan/eep
+   https://github.com/andytill/erlyberly
+3. Erlang node statistics with erlang:statistics
+4. Erlang profiling tools from OTP <-http://stackoverflow.com/questions/204926/profiler-analyzer-for-erlang
+   http://erlang.org/documentation/doc-5.5.5/lib/tools-2.5.5/doc/html/index.html
