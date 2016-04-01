@@ -51,3 +51,9 @@ mnesia:create_table(yang_db,[{index,[#xmlElement.expanded_name]},{attributes,rec
             (or)
 ->mnesia:create_schema([node()]).                     <-Create a schema on current erl node 
 ->mnesia:create_table(my_db,[{index,[#xmlElement.expanded_name]},{attributes,record_info(fields,xmlElement)},{type,bag},{record_name,xmlElement},{disc_only_copies,[node()]}}]).   <-create a table with my_db name which stores xmlElement records as disc_only_copies, mnesia dir and schema creation should be done beforehand.
+
+--Using match_object on ETS
+34> ets:new(krik2,[bag,named_table]),ets:insert(krik2,{sim,v2,ne01,"hi"}),ets:insert(krik2,{sim,v2,ne02,"hello"}),ets:insert(krik2,{sim,v1,ne03,"hey"}),ets:insert(krik2,{sim,v1,ne04,"man"}),ets:insert(krik2,{sim1,v1,ne01,"manning"}).
+true
+35> ets:match_object(krik2,{sim,v1,'_','_'}).
+[{sim,v1,ne03,"hey"},{sim,v1,ne04,"man"}]
